@@ -1,23 +1,16 @@
 #!/bin/bash
 BOOK_NAME=$1
 OCR_PROCESSED_DIR="${BOOK_NAME}/ocr-processed"
-mkdir -p "$OCR_PROCESSED_DIR"
+FINAL_PDF="${BOOK_NAME}-final.pdf"
 
-# Store all the processed image files in an array
-img_files=($(find ${BOOK_NAME} -type f -name "*-processed.jpg"))
+# Store all the individual PDF files in an array
+pdf_files=($(find ${OCR_PROCESSED_DIR} -type f -name "*.pdf" | sort -V))
 
-# Get the total number of processed image files
-total_files=${#img_files[@]}
+# Combine all the individual PDFs into a single PDF
+# This requires a tool like pdftk or qpdf
+# pdftk "${pdf_files[@]}" cat output "$FINAL_PDF"
+# OR
+qpdf --empty --pages "${pdf_files[@]}" -- "$FINAL_PDF"
 
-# Initialize the current file number to 0
-current_file=0
+echo "Created final PDF with OCR text: $FINAL_PDF"
 
-for img_file in "${img_files[@]}"; do
-  # Increment the current file number
-  current_file=$((current_file + 1))
-  
-  base_name=$(basename "$img_file" -processed.jpg)
-  
-  echo "Running OCR on processed $img_file... ($current_file/$total_files)"
-  tesseract "$img_file" "$OCR_PROCESSED_DIR/$base_name"
-done
